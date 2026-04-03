@@ -1,0 +1,18 @@
+def main(argv: Sequence[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    args = parse_args(argv)
+    configure_logging(args.log_level)
+    try:
+        return execute_from_args(args)
+    except (InputValidationError, CrossingLimitError) as exc:
+        LOGGER.error(str(exc))
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except LCL833Error as exc:
+        LOGGER.error(str(exc))
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 3
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

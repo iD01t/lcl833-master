@@ -1,0 +1,123 @@
+Metadata-Version: 2.4
+Name: lcl833-master
+Version: 0.3.0
+Summary: Exact Jones polynomial calculator, LaTeX exporter, and calibrated LCL-833 metrics (PRO)
+Author: Guillaume Lessard
+License: MIT License
+        
+        Copyright (c) 2026 Guillaume Lessard
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/example/lcl833-master
+Project-URL: Source, https://github.com/example/lcl833-master
+Project-URL: Bug-Tracker, https://github.com/example/lcl833-master/issues
+Keywords: knot-theory,jones-polynomial,braid-group,topological-quantum-computing,lcl833,sati-codex,latex-export,multiprocessing
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# lcl833-master
+
+[![PyPI version](https://img.shields.io/pypi/v/lcl833-master.svg)](https://pypi.org/project/lcl833-master/)
+[![Python versions](https://img.shields.io/pypi/pyversions/lcl833-master.svg)](https://img.shields.io/pypi/pyversions/lcl833-master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**lcl833-master** computes exact Jones polynomials from braid words using the Kauffman bracket state sum, evaluates them at the fifth root of unity $q = \exp(2\pi i/5)$, and derives calibrated LCL-833 / SATI-CODEX protection metrics ($\delta_{eff}, \alpha_{op}, G_{gap}, \epsilon_{eff}, \omega, T_{min}$) directly in your terminal or Python environment.
+
+## Features
+
+- **Exact Jones Polynomials:** Uses `fractions.Fraction` for rational exponents to maintain exactness during intermediate steps.
+- **Parallel Execution:** Multiprocessing support for complex braids (>= 12 crossings) to significantly reduce computation time.
+- **LaTeX Export:** Generate publication-ready TeX strings for any computed polynomial.
+- **Expanded Presets:** Full support for standard knots from the Rolfsen table (3_1 through 7_1).
+- **LCL-833 Metrics:** Calibrated against the trefoil knot anchor ($|J(3_1; q_5)| \approx 1.543$).
+- **CLI & API:** Use it as a standalone tool or a Python library.
+
+## Installation
+
+```bash
+pip install lcl833-master
+```
+
+## CLI Usage
+
+### Basic Commands
+
+```bash
+# Run a preset knot (3_1, 4_1, figure8, etc.)
+lcl833 knot 3_1
+
+# Run a custom braid word (Artin generators σ_i)
+lcl833 braid 1 1 1
+lcl833 braid 1 -2 1 -2
+
+# Emit JSON output (includes LaTeX strings)
+lcl833 knot 3_1 --json
+```
+
+### Advanced Options
+
+- `--table`: Show a comparison table of all preset knots.
+- `--genus`: Logical genus (default: 5).
+- `--gamma`: Khovanov correction factor (default: 0.05).
+- `--max-crossings`: Maximum allowed crossings (default: 18).
+- `--no-lcl`: Skip calibrated metrics and only show Jones results.
+
+```bash
+lcl833 table
+```
+
+## Python API Usage
+
+```python
+from lcl833_master import compute_jones_result, compute_lcl833_metrics
+
+# Compute Jones polynomial for the trefoil (σ₁³)
+res = compute_jones_result((1, 1, 1))
+print(f"Jones Polynomial: {res.normalized_jones_pretty}")
+print(f"LaTeX: {res.normalized_jones_latex}")
+print(f"Magnitude at q5: {res.magnitude_at_q5:.4f}")
+
+# Compute LCL-833 metrics
+metrics = compute_lcl833_metrics(v_j=res.magnitude_at_q5, genus=5)
+print(f"Alpha_op: {metrics.alpha_op:.4f}")
+print(f"T_min: {metrics.t_min}")
+```
+
+## Performance Note
+
+Kauffman bracket computation is $O(2^n)$. For braids with $n \ge 12$, the library automatically utilizes all available CPU cores via `multiprocessing`. Use `--max-crossings` to prevent accidental long-running processes on extremely large diagrams.
+
+## License
+
+MIT License. See `LICENSE` for details.

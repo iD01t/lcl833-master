@@ -1,0 +1,2 @@
+[console_scripts]
+lcl833 = lcl833_master.core:main

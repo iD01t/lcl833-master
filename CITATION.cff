@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Lessard"
+  given-names: "Guillaume"
+title: "lcl833-master: Jones Polynomial and LCL-833 Metrics Calculator"
+version: 0.2.0
+date-released: 2026-04-02
+url: "https://github.com/example/lcl833-master"
+abstract: "A Python tool for computing exact Jones polynomials and calibrated LCL-833 topological protection metrics."
+keywords:
+- knot theory
+- jones polynomial
+- lcl-833
+- sati-codex
+- braids
+license: MIT
