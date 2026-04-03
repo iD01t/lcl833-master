@@ -3,73 +3,118 @@
 [![PyPI version](https://img.shields.io/pypi/v/lcl833-master.svg)](https://pypi.org/project/lcl833-master/)
 [![Python versions](https://img.shields.io/pypi/pyversions/lcl833-master.svg)](https://img.shields.io/pypi/pyversions/lcl833-master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/iD01t/lcl833-master/actions/workflows/ci.yml/badge.svg)](https://github.com/iD01t/lcl833-master/actions)
 
-**lcl833-master** computes exact Jones polynomials from braid words using the Kauffman bracket state sum, evaluates them at the fifth root of unity $q = \exp(2\pi i/5)$, and derives calibrated LCL-833 / SATI-CODEX protection metrics ($\delta_{eff}, \alpha_{op}, G_{gap}, \epsilon_{eff}, \omega, T_{min}$) directly in your terminal or Python environment.
+**lcl833-master** is a high-performance Python engine for computing exact Jones polynomials and calibrated protection metrics ($LCL-833$, $SATI-CODEX$). It leverages parallel state-sum algorithms and exact algebraic representation to provide a world-class research environment for knot theory and topological invariants.
 
-## Features
+## 🚀 Key Features
 
-- **Exact Jones Polynomials:** Uses `fractions.Fraction` for rational exponents to maintain exactness during intermediate steps.
-- **Parallel Execution:** Multiprocessing support for complex braids (>= 12 crossings) to significantly reduce computation time.
-- **LaTeX Export:** Generate publication-ready TeX strings for any computed polynomial.
-- **Expanded Presets:** Full support for standard knots from the Rolfsen table (3_1 through 7_1).
-- **LCL-833 Metrics:** Calibrated against the trefoil knot anchor ($|J(3_1; q_5)| \approx 1.543$).
-- **CLI & API:** Use it as a standalone tool or a Python library.
+- **Exact Algebraic Core:** Uses `fractions.Fraction` for rational exponents and exact coefficient bookkeeping.
+- **High-Performance Parallelism:** Automatic `multiprocessing` support for complex braids ($n \ge 12$).
+- **Publication-Ready LaTeX:** Instant generation of TeX strings for Laurent polynomials.
+- **Rolfsen Table Integration:** Native presets for standard knots (3_1, 4_1, 5_1, 5_2, 6_1, 6_2, 6_3, 7_1, etc.).
+- **Calibrated Protection Models:** Implementation of LCL-833/SATI-CODEX metrics calibrated against the trefoil knot anchor ($|J(3_1; q_5)| \approx 1.543$).
+- **Universal CLI & API:** Seamless integration into terminal workflows or larger Python research pipelines.
 
-## Installation
+---
+
+## 🛠 Installation
 
 ```bash
 pip install lcl833-master
 ```
 
-## CLI Usage
+Requires **Python 3.10+**.
+
+---
+
+## 💻 CLI Usage
+
+The package provides the `lcl833` command-line entry point.
 
 ### Basic Commands
-
 ```bash
-# Run a preset knot (3_1, 4_1, figure8, etc.)
-lcl833 knot 3_1
+# Analyze a preset knot (e.g., 4_1 or figure-8)
+lcl833 knot 4_1
 
-# Run a custom braid word (Artin generators σ_i)
-lcl833 braid 1 1 1
-lcl833 braid 1 -2 1 -2
+# Analyze a custom braid word (Artin generators σ_i)
+lcl833 braid 1 1 1        # Trefoil
+lcl833 braid 1 -2 1 -2    # Figure-8
 
-# Emit JSON output (includes LaTeX strings)
+# Export results as machine-readable JSON (includes LaTeX)
 lcl833 knot 3_1 --json
 ```
 
-### Advanced Options
-
-- `--table`: Show a comparison table of all preset knots.
-- `--genus`: Logical genus (default: 5).
-- `--gamma`: Khovanov correction factor (default: 0.05).
-- `--max-crossings`: Maximum allowed crossings (default: 18).
-- `--no-lcl`: Skip calibrated metrics and only show Jones results.
-
+### Advanced Research Tools
 ```bash
+# Comparison Table: See metrics for all presets in one view
 lcl833 table
+
+# Control the execution engine
+lcl833 braid 1 2 1 2 1 2 --no-parallel  # Force single-threaded
+lcl833 braid 1 2 1 2 1 2 --max-crossings 24 # Increase performance guard
 ```
 
-## Python API Usage
+---
+
+## 🐍 Python API Usage
 
 ```python
 from lcl833_master import compute_jones_result, compute_lcl833_metrics
 
-# Compute Jones polynomial for the trefoil (σ₁³)
+# 1. Compute Jones Polynomial results
 res = compute_jones_result((1, 1, 1))
 print(f"Jones Polynomial: {res.normalized_jones_pretty}")
 print(f"LaTeX: {res.normalized_jones_latex}")
-print(f"Magnitude at q5: {res.magnitude_at_q5:.4f}")
+print(f"Magnitude at q5: {res.magnitude_at_q5:.12f}")
 
-# Compute LCL-833 metrics
+# 2. Derive calibrated LCL-833 metrics
 metrics = compute_lcl833_metrics(v_j=res.magnitude_at_q5, genus=5)
-print(f"Alpha_op: {metrics.alpha_op:.4f}")
-print(f"T_min: {metrics.t_min}")
+print(f"Alpha_op (operational alpha): {metrics.alpha_op:.4f}")
+print(f"T_min (minimum time): {metrics.t_min}")
 ```
 
-## Performance Note
+---
 
-Kauffman bracket computation is $O(2^n)$. For braids with $n \ge 12$, the library automatically utilizes all available CPU cores via `multiprocessing`. Use `--max-crossings` to prevent accidental long-running processes on extremely large diagrams.
+## 🔬 Mathematical Theory
 
-## License
+### The Kauffman Bracket State-Sum
+The core algorithm implements the Kauffman bracket state-sum:
+$$ \langle L \rangle = \sum_{s} A^{\text{ind}(s)} (-A^2 - A^{-2})^{|s|-1} $$
+Where $\text{ind}(s) = \text{zeros}(s) - \text{ones}(s)$. The engine then normalizes the bracket into the Jones polynomial $V_L(q)$ via the substitution $q = A^{-4}$.
 
-MIT License. See `LICENSE` for details.
+### LCL-833 Calibration
+The LCL-833 model utilizes the magnitude of the Jones polynomial evaluated at the fifth root of unity ($q = e^{2\pi i / 5}$):
+- **Effective Delta:** $\delta_{eff}(K) = |J(K; q_5)| + \gamma R_{Kh}(K)$
+- **Operational Alpha:** $\alpha_{op} = \alpha_{ref} \frac{\delta_{eff}(K)}{\delta_{eff}(3_1)}$
+
+---
+
+## ⚡ Performance Note
+
+The state-sum algorithm has a time complexity of $O(2^n)$ where $n$ is the number of crossings. 
+- **n < 12:** Single-threaded execution (fast).
+- **n >= 12:** Automatic multiprocessing (utilizes all CPU cores).
+- **n > 18:** May require significant time. Use `--max-crossings` to override guards if necessary.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions to the **lcl833-master** engine! 
+- **Bugs:** Report issues on the [Bug Tracker](https://github.com/iD01t/lcl833-master/issues).
+- **Code:** Pull requests are welcome for algorithm optimizations or new preset knots.
+
+---
+
+## 📜 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+## 🔗 Links
+
+- **PyPI:** [pypi.org/project/lcl833-master/](https://pypi.org/project/lcl833-master/)
+- **Source:** [github.com/iD01t/lcl833-master](https://github.com/iD01t/lcl833-master)
+- **Author:** [Guillaume Lessard](https://github.com/iD01t)
